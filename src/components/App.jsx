@@ -92,7 +92,6 @@ export const App =() => {
   return (
     <>
         <Searchbar onSubmit ={handleSearchbar}/>
-
         <GalleryForm searchData={search} openModal={toggleModal} getUrl={getLargeImage}/>
         <ToastContainer autoClose={2000}/>
 
