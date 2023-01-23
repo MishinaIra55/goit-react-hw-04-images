@@ -112,35 +112,28 @@ export const GalleryForm = ({ openModal, getUrl, searchData }) => {
   const [status, setStatus] = useState('idle');
   const [page, setPage] = useState(1);
 
-
-
-
-  useEffect(()=> {
-    console.log('sdf');
-    if(images.length > 0) {
-      console.log('change search');
-      setImages([]);
-      setPage(1);
-    }
-    },[searchData]);
-
-
   useEffect(() => {
     if (searchData.length > 0) {
-      getImages();
+      getImages(searchData).then((result) => {
+        try {
+          setImages([...result]);
+          setPage(1);
+        } catch (error) {
+          setError(`нет картинки ${searchData}`);
+        }
+      });
     }
   }, [searchData]);
 
   useEffect(() => {
-    console.log('change page');
-    if (searchData.length > 0 && page > 1) {
-      getImages();
+    if (page > 1) {
+      getImages(searchData, page).then(newData => {
+        setImages(prev => [...prev, ...newData])
+      });
     }
   }, [page])
 
-
-
-  const getImages = async () => {
+  const getImages = async (searchData, page = 1) => {
     setStatus('pending');
     try {
       const response = await fetchAxiosGallery(searchData, page);
@@ -151,16 +144,17 @@ export const GalleryForm = ({ openModal, getUrl, searchData }) => {
             }
       })
 
-      setImages([...images, ...newData]);
       setStatus('idle');
 
-
       if (response.hits.length === 0) {
-          throw new SyntaxError('Try again, the search is not correct');
-        }
+        setImages([]);
+        throw new Error('Try again, the search is not correct');
+      }
+
+      return newData;
 
     } catch (error) {
-      setError(  `нет картинки ${searchData}`);
+      setError(`нет картинки ${searchData}`);
       setStatus('rejected');
     }
   };
@@ -168,10 +162,6 @@ export const GalleryForm = ({ openModal, getUrl, searchData }) => {
   const onLoadMore = () => {
     setPage(page + 1);
   };
-
-//     if (status === 'rejected') {
-//       return <ErrorData message={ error} /> ;
-//     }
 
   return (
     <>
