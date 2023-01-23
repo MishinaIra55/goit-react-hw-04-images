@@ -66,6 +66,7 @@ import { useState } from 'react';
 import { ImSearch } from 'react-icons/im';
 import styles from './Searchbar.module.css';
 import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 export const Searchbar = ({onSubmit}) => {
   const [search, setSearch] = useState('');
@@ -78,7 +79,6 @@ export const Searchbar = ({onSubmit}) => {
       toast.error('Введите ваш запрос');
       return;
     }
-
     onSubmit(search);
     setSearch( '');
 }
@@ -107,8 +107,8 @@ export const Searchbar = ({onSubmit}) => {
         </button>
       </form>
 
-        </header>
-  )
+    </header>
+  );
 
 }
 
