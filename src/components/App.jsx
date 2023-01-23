@@ -75,6 +75,7 @@ export const App =() => {
 
   const handleSearchbar = search => {
     setSearch( search );
+
   };
 
 

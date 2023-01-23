@@ -98,7 +98,7 @@
 // }
 
 
-import { useEffect, useState } from 'react';
+import { useEffect,  useState } from 'react';
 import { ImageGallery } from './ImageGallery/ImageGallery';
 import { fetchAxiosGallery } from '../services/pixibay-api';
 
@@ -112,23 +112,36 @@ export const GalleryForm = ({ openModal, getUrl, searchData }) => {
   const [status, setStatus] = useState('idle');
   const [page, setPage] = useState(1);
 
-  useEffect(() => {
-    console.log('first effect');
-    setImages([]);
-    setPage(1);
-  },[searchData])
+
+
+
+  useEffect(()=> {
+    console.log('sdf');
+    if(images.length > 0) {
+      console.log('change search');
+      setImages([]);
+      setPage(1);
+    }
+    },[searchData]);
+
 
   useEffect(() => {
-    console.log('second effect');
     if (searchData.length > 0) {
-      setStatus('pending');
       getImages();
     }
-  }, [page, searchData]);
+  }, [searchData]);
+
+  useEffect(() => {
+    console.log('change page');
+    if (searchData.length > 0 && page > 1) {
+      getImages();
+    }
+  }, [page])
 
 
 
   const getImages = async () => {
+    setStatus('pending');
     try {
       const response = await fetchAxiosGallery(searchData, page);
       // console.log(response);
@@ -143,7 +156,7 @@ export const GalleryForm = ({ openModal, getUrl, searchData }) => {
 
 
       if (response.hits.length === 0) {
-          throw  new SyntaxError('Try again, the search is not correct');
+          throw new SyntaxError('Try again, the search is not correct');
         }
 
     } catch (error) {
@@ -163,8 +176,8 @@ export const GalleryForm = ({ openModal, getUrl, searchData }) => {
   return (
     <>
       {(status === 'idle' && images.length === 0) && <div className={styles.text}>Введите ваш запрос поиска</div> }
-      {(status === 'pending' && page === 1) && <Loader/>}
-      {status === 'rejected' && <ErrorData message={ error} />}
+      {status === 'rejected' && <ErrorData message={ error}/> }
+      {status === 'pending' && <Loader/>}
       {images.length > 0 &&
         <ImageGallery
           images={images}
