@@ -67,40 +67,39 @@ import { GalleryForm } from './GalleryForm';
 import { ToastContainer } from 'react-toastify';
 import { Modal } from './Modal/Modal';
 
-export const App =() => {
-  const [search,setSearch] = useState('');
-  const [showModal,setShowModal] = useState(false);
-  const [largeImage,setLargeImage] = useState('');
+export const App = () => {
+  const [search, setSearch] = useState('');
+  const [showModal, setShowModal] = useState(false);
+  const [largeImage, setLargeImage] = useState('');
 
 
   const handleSearchbar = search => {
-    setSearch( search );
+    setSearch(search);
 
   };
 
 
-    //переключение модалки
+  //переключение модалки
   const toggleModal = () => {
-    setShowModal(!showModal)
+    setShowModal(!showModal);
   };
-
 
 
   const getLargeImage = (imageURL) => {
-    setLargeImage(imageURL)
-  }
+    setLargeImage(imageURL);
+  };
 
   return (
     <>
-        <Searchbar onSubmit ={handleSearchbar}/>
-        <GalleryForm searchData={search} openModal={toggleModal} getUrl={getLargeImage}/>
-        <ToastContainer autoClose={2000}/>
+      <Searchbar onSubmit={handleSearchbar} />
+      <GalleryForm searchData={search} openModal={toggleModal} getUrl={getLargeImage} />
+      <ToastContainer autoClose={2000} />
 
-        {showModal && (
+      {showModal && (
         <Modal onClose={toggleModal}>
-          <img src={largeImage} alt="" className="Modal-image" />
+          <img src={largeImage} alt='' className='Modal-image' />
         </Modal>
-        )}
+      )}
     </>
-  )
-}
+  );
+};

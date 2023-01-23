@@ -101,6 +101,7 @@
 import { useEffect,  useState } from 'react';
 import { ImageGallery } from './ImageGallery/ImageGallery';
 import { fetchAxiosGallery } from '../services/pixibay-api';
+import PropTypes from 'prop-types';
 
 import styles from './GalleryForm.module.css';
 import { Loader } from './Loader/Loader';
@@ -123,7 +124,9 @@ export const GalleryForm = ({ openModal, getUrl, searchData }) => {
         }
       });
     }
+    // eslint-disable-next-line
   }, [searchData]);
+
 
   useEffect(() => {
     if (page > 1) {
@@ -131,6 +134,7 @@ export const GalleryForm = ({ openModal, getUrl, searchData }) => {
         setImages(prev => [...prev, ...newData])
       });
     }
+    // eslint-disable-next-line
   }, [page])
 
   const getImages = async (searchData, page = 1) => {
@@ -182,4 +186,8 @@ export const GalleryForm = ({ openModal, getUrl, searchData }) => {
   );
 };
 
-
+GalleryForm.propTypes  = {
+    searchData: PropTypes.string.isRequired,
+    openModal: PropTypes.func.isRequired,
+    getUrl: PropTypes.func.isRequired,
+  }

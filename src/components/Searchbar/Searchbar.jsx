@@ -67,6 +67,7 @@ import { ImSearch } from 'react-icons/im';
 import styles from './Searchbar.module.css';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import PropTypes from 'prop-types';
 
 export const Searchbar = ({onSubmit}) => {
   const [search, setSearch] = useState('');
@@ -112,4 +113,6 @@ export const Searchbar = ({onSubmit}) => {
 
 }
 
-
+Searchbar.propTypes = {
+    onSubmit: PropTypes.func.isRequired,
+  }
