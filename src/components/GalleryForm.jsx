@@ -115,6 +115,7 @@ export const GalleryForm = ({ openModal, getUrl, searchData }) => {
 
   useEffect(() => {
     if (searchData.length > 0) {
+      console.log('first');
       getImages(searchData).then((result) => {
         try {
           setImages([...result]);
@@ -124,23 +125,22 @@ export const GalleryForm = ({ openModal, getUrl, searchData }) => {
         }
       });
     }
-    // eslint-disable-next-line
-  }, [searchData]);
+    }, [searchData]);
 
 
   useEffect(() => {
     if (page > 1) {
+      console.log('second');
       getImages(searchData, page).then(newData => {
         setImages(prev => [...prev, ...newData])
       });
     }
-    // eslint-disable-next-line
   }, [page])
 
-  const getImages = async (searchData, page = 1) => {
+  const getImages = async (search, pageNumber = 1) => {
     setStatus('pending');
     try {
-      const response = await fetchAxiosGallery(searchData, page);
+      const response = await fetchAxiosGallery(search, pageNumber);
       // console.log(response);
       const newData = response.hits.map(({ id, webformatURL, largeImageURL }) => {
             return {
@@ -171,7 +171,7 @@ export const GalleryForm = ({ openModal, getUrl, searchData }) => {
     <>
       {(status === 'idle' && images.length === 0) && <div className={styles.text}>Введите ваш запрос поиска</div> }
       {status === 'rejected' && <ErrorData message={ error}/> }
-      {status === 'pending' && <Loader/>}
+      {(status === 'pending' && images.length === 1) && <Loader/>}
       {images.length > 0 &&
         <ImageGallery
           images={images}
