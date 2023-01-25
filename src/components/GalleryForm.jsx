@@ -98,7 +98,7 @@
 // }
 
 
-import { useEffect,  useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ImageGallery } from './ImageGallery/ImageGallery';
 import { fetchAxiosGallery } from '../services/pixibay-api';
 import PropTypes from 'prop-types';
@@ -114,54 +114,54 @@ export const GalleryForm = ({ openModal, getUrl, searchData }) => {
   const [page, setPage] = useState(1);
 
   useEffect(() => {
-    if (searchData.length > 0) {
-      console.log('first');
-      getImages(searchData).then((result) => {
-        try {
-          setImages([...result]);
-          setPage(1);
-        } catch (error) {
-          setError(`нет картинки ${searchData}`);
-        }
-      });
-    }
-    }, [searchData]);
-
+    console.log('second');
+    setPage(1);
+    setImages([]);
+  }, [searchData])
 
   useEffect(() => {
-    if (page > 1) {
-      console.log('second');
-      getImages(searchData, page).then(newData => {
-        setImages(prev => [...prev, ...newData])
-      });
-    }
-  }, [page])
+    async function getImages() {
+      setStatus('pending');
+      try {
+        const response = await fetchAxiosGallery(searchData, page);
+        const newData = response.hits.map(({ id, webformatURL, largeImageURL }) => {
+          return {
+            id, webformatURL, largeImageURL,
+          };
+        });
 
-  const getImages = async (search, pageNumber = 1) => {
-    setStatus('pending');
-    try {
-      const response = await fetchAxiosGallery(search, pageNumber);
-      // console.log(response);
-      const newData = response.hits.map(({ id, webformatURL, largeImageURL }) => {
-            return {
-              id, webformatURL, largeImageURL
-            }
-      })
+        setStatus('idle');
 
-      setStatus('idle');
+        if (response.hits.length === 0) {
+          setImages([]);
+          throw new Error('Try again, the search is not correct');
+        }
 
-      if (response.hits.length === 0) {
-        setImages([]);
-        throw new Error('Try again, the search is not correct');
+        return newData;
+
+      } catch (error) {
+        setError(`нет картинки ${searchData}`);
+        setStatus('rejected');
       }
-
-      return newData;
-
-    } catch (error) {
-      setError(`нет картинки ${searchData}`);
-      setStatus('rejected');
     }
-  };
+
+    if (searchData.length > 0 && page === 1) {
+      getImages(searchData, page)
+        .then((result) => {
+          console.log('first');
+          setImages(prevState => [...result]);
+        });
+    } else if (searchData.length > 0 && page > 1) {
+      getImages(searchData, page)
+        .then((result) => {
+          console.log('third');
+          setImages(prevState => [...prevState, ...result]);
+        });
+    }
+
+  }, [page, searchData]);
+
+
 
   const onLoadMore = () => {
     setPage(page + 1);
