@@ -98,7 +98,7 @@
 // }
 
 
-import { useEffect, useState } from 'react';
+import { useEffect,  useState } from 'react';
 import { ImageGallery } from './ImageGallery/ImageGallery';
 import { fetchAxiosGallery } from '../services/pixibay-api';
 import PropTypes from 'prop-types';
@@ -114,54 +114,54 @@ export const GalleryForm = ({ openModal, getUrl, searchData }) => {
   const [page, setPage] = useState(1);
 
   useEffect(() => {
-    console.log('second');
-    setPage(1);
-    setImages([]);
-  }, [searchData])
+    if (searchData.length > 0) {
+      getImages(searchData).then((result) => {
+        try {
+          setImages([...result]);
+          setPage(1);
+        } catch (error) {
+          setError(`нет картинки ${searchData}`);
+        }
+      });
+    }
+    // eslint-disable-next-line
+  }, [searchData]);
+
 
   useEffect(() => {
-    async function getImages() {
-      setStatus('pending');
-      try {
-        const response = await fetchAxiosGallery(searchData, page);
-        const newData = response.hits.map(({ id, webformatURL, largeImageURL }) => {
-          return {
-            id, webformatURL, largeImageURL,
-          };
-        });
+    if (page > 1) {
+      getImages(searchData, page).then(newData => {
+        setImages(prev => [...prev, ...newData])
+      });
+    }
+    // eslint-disable-next-line
+  }, [page])
 
-        setStatus('idle');
+  const getImages = async (searchData, page = 1) => {
+    setStatus('pending');
+    try {
+      const response = await fetchAxiosGallery(searchData, page);
+      // console.log(response);
+      const newData = response.hits.map(({ id, webformatURL, largeImageURL }) => {
+            return {
+              id, webformatURL, largeImageURL
+            }
+      })
 
-        if (response.hits.length === 0) {
-          setImages([]);
-          throw new Error('Try again, the search is not correct');
-        }
+      setStatus('idle');
 
-        return newData;
-
-      } catch (error) {
-        setError(`нет картинки ${searchData}`);
-        setStatus('rejected');
+      if (response.hits.length === 0) {
+        setImages([]);
+        throw new Error('Try again, the search is not correct');
       }
+
+      return newData;
+
+    } catch (error) {
+      setError(`нет картинки ${searchData}`);
+      setStatus('rejected');
     }
-
-    if (searchData.length > 0 && page === 1) {
-      getImages(searchData, page)
-        .then((result) => {
-          console.log('first');
-          setImages(prevState => [...result]);
-        });
-    } else if (searchData.length > 0 && page > 1) {
-      getImages(searchData, page)
-        .then((result) => {
-          console.log('third');
-          setImages(prevState => [...prevState, ...result]);
-        });
-    }
-
-  }, [page, searchData]);
-
-
+  };
 
   const onLoadMore = () => {
     setPage(page + 1);
@@ -171,7 +171,7 @@ export const GalleryForm = ({ openModal, getUrl, searchData }) => {
     <>
       {(status === 'idle' && images.length === 0) && <div className={styles.text}>Введите ваш запрос поиска</div> }
       {status === 'rejected' && <ErrorData message={ error}/> }
-      {(status === 'pending' && images.length === 1) && <Loader/>}
+      {status === 'pending' && <Loader/>}
       {images.length > 0 &&
         <ImageGallery
           images={images}
