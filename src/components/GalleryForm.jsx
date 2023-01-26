@@ -98,7 +98,7 @@
 // }
 
 
-import { useEffect,  useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ImageGallery } from './ImageGallery/ImageGallery';
 import { fetchAxiosGallery } from '../services/pixibay-api';
 import PropTypes from 'prop-types';
@@ -131,11 +131,11 @@ export const GalleryForm = ({ openModal, getUrl, searchData }) => {
   useEffect(() => {
     if (page > 1) {
       getImages(searchData, page).then(newData => {
-        setImages(prev => [...prev, ...newData])
+        setImages(prev => [...prev, ...newData]);
       });
     }
 
-  }, [page])
+  }, [page]);
 
   const getImages = async (search, page = 1) => {
     setStatus('pending');
@@ -143,10 +143,10 @@ export const GalleryForm = ({ openModal, getUrl, searchData }) => {
       const response = await fetchAxiosGallery(search, page);
       // console.log(response);
       const newData = response.hits.map(({ id, webformatURL, largeImageURL }) => {
-            return {
-              id, webformatURL, largeImageURL
-            }
-      })
+        return {
+          id, webformatURL, largeImageURL,
+        };
+      });
 
       setStatus('idle');
 
@@ -169,9 +169,9 @@ export const GalleryForm = ({ openModal, getUrl, searchData }) => {
 
   return (
     <>
-      {(status === 'idle' && images.length === 0) && <div className={styles.text}>Введите ваш запрос поиска</div> }
-      {status === 'rejected' && <ErrorData message={ error}/> }
-      {status === 'pending' && <Loader/>}
+      {(status === 'idle' && images.length === 0) && <div className={styles.text}>Введите ваш запрос поиска</div>}
+      {status === 'rejected' && <ErrorData message={error} />}
+      {status === 'pending' && <Loader />}
       {images.length > 0 &&
         <ImageGallery
           images={images}
@@ -186,8 +186,8 @@ export const GalleryForm = ({ openModal, getUrl, searchData }) => {
   );
 };
 
-GalleryForm.propTypes  = {
-    searchData: PropTypes.string.isRequired,
-    openModal: PropTypes.func.isRequired,
-    getUrl: PropTypes.func.isRequired,
-  }
+GalleryForm.propTypes = {
+  searchData: PropTypes.string.isRequired,
+  openModal: PropTypes.func.isRequired,
+  getUrl: PropTypes.func.isRequired,
+};
