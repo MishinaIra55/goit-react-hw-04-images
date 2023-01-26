@@ -124,7 +124,7 @@ export const GalleryForm = ({ openModal, getUrl, searchData }) => {
         }
       });
     }
-    // eslint-disable-next-line
+
   }, [searchData]);
 
 
@@ -134,13 +134,13 @@ export const GalleryForm = ({ openModal, getUrl, searchData }) => {
         setImages(prev => [...prev, ...newData])
       });
     }
-    // eslint-disable-next-line
+
   }, [page])
 
-  const getImages = async (searchData, page = 1) => {
+  const getImages = async (search, page = 1) => {
     setStatus('pending');
     try {
-      const response = await fetchAxiosGallery(searchData, page);
+      const response = await fetchAxiosGallery(search, page);
       // console.log(response);
       const newData = response.hits.map(({ id, webformatURL, largeImageURL }) => {
             return {
