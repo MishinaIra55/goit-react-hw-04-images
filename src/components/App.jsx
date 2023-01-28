@@ -63,11 +63,14 @@
 
 import { useEffect, useState } from 'react';
 import { Searchbar } from './Searchbar/Searchbar';
-import { GalleryForm } from './GalleryForm';
 import { ToastContainer } from 'react-toastify';
 import { Modal } from './Modal/Modal';
 import { fetchAxiosGallery } from 'services/pixibay-api';
 import { ImageGallery } from './ImageGallery/ImageGallery';
+import styles from './GalleryForm.module.css';
+import ErrorData from './ErrorData/ErrorData';
+import { Loader } from './Loader/Loader';
+
 
 
 export const App = () => {
@@ -80,27 +83,28 @@ export const App = () => {
   const [status, setStatus] = useState('idle');
   const [page, setPage] = useState(1);
 
-  useEffect(() => {
-    const fetchData = async (search = '', page = 1) => {
+
+
+  const fetchData = async (search, page = 1) => {
       setStatus('pending');
 
       try {
+        // setStatus('pending');
         const response = await fetchAxiosGallery(search, page);
-        // console.log(response);
+
         const newData = response.hits.map(({ id, webformatURL, largeImageURL }) => {
           return {
             id, webformatURL, largeImageURL,
           };
         });
-
         setStatus('idle');
 
         if (response.hits.length === 0) {
-          // setImages([]);
+          setImages([]);
           throw new Error('Try again, the search is not correct');
         }
-
-        return newData;
+        console.log(newData);
+         setImages(prevState => [...prevState, ...newData]);
 
       } catch (error) {
         setError(`нет картинки ${search}`);
@@ -108,23 +112,20 @@ export const App = () => {
       }
     };
 
+
+
+  useEffect(()=> {
     if (!search) {
       return;
     }
-
-    fetchData( search, page)
-      .then((data) => {
-        setImages(prevState => [...prevState, ...data])
-    })
-
-  }, [page, search]);
+    fetchData( search, page);
+  },[search,page]);
 
 
   const handleSearchbar = search => {
-    if (!search) {
-      throw new Error('Please enter key word');
-    }
     setSearch(search);
+    setImages([]);
+    setPage(1);
   };
 
 
@@ -139,22 +140,27 @@ export const App = () => {
   };
 
   const onLoadMore = () => {
-    setPage(page + 1);
+    setPage(prevState=> prevState + 1);
   };
 
   return (
     <>
+
       <Searchbar onSubmit={handleSearchbar} />
+      {(status === 'idle' && images.length === 0) && <div className={styles.text}>Введите ваш запрос поиска</div>}
+      {status === 'rejected' && <ErrorData message={error}/>}
+
+      {/*{status === 'pending' && <Loader/>}*/}
+
       {images.length > 0 &&
         <ImageGallery
           images={images}
-          // modalclick={openModal}
-          //  getUrl={getUrl}
-          //  status={status}
+           // modalclick={openModal}
+           // getUrl={getUrl}
+           status={status}
           load={onLoadMore}
         />
       }
-      {/*<GalleryForm searchData={search} openModal={toggleModal} getUrl={getLargeImage} />*/}
       <ToastContainer autoClose={2000} />
 
       {showModal && (
