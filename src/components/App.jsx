@@ -67,6 +67,7 @@ import { GalleryForm } from './GalleryForm';
 import { ToastContainer } from 'react-toastify';
 import { Modal } from './Modal/Modal';
 import { fetchAxiosGallery } from 'services/pixibay-api';
+import { ImageGallery } from './ImageGallery/ImageGallery';
 
 
 export const App = () => {
@@ -79,65 +80,51 @@ export const App = () => {
   const [status, setStatus] = useState('idle');
   const [page, setPage] = useState(1);
 
-  useEffect(()=> {
-    const fetchData = async ({search, page}) => {
+  useEffect(() => {
+    const fetchData = async (search = '', page = 1) => {
       setStatus('pending');
 
       try {
-        const response = await fetchAxiosGallery ({search, page}) ;
-        handleResolve(response);
-      }catch (error) {
-      setStatus('rejected');
-      console.log(error);
+        const response = await fetchAxiosGallery(search, page);
+        // console.log(response);
+        const newData = response.hits.map(({ id, webformatURL, largeImageURL }) => {
+          return {
+            id, webformatURL, largeImageURL,
+          };
+        });
+
+        setStatus('idle');
+
+        if (response.hits.length === 0) {
+          // setImages([]);
+          throw new Error('Try again, the search is not correct');
+        }
+
+        return newData;
+
+      } catch (error) {
+        setError(`нет картинки ${search}`);
+        setStatus('rejected');
       }
     };
-
-      const handleResolve = ({ hits, total, totalHits }) => {
-        const sortedImages = hits.map(
-          ({ id, webformatURL, tags, largeImageURL }) => ({
-            id,
-            webformatURL,
-            tags,
-            largeImageURL,
-          })
-        );
-
-        if (!total) {
-          alert(
-            'Sorry, there are no images matching your search, please try another key word'
-          );
-          setStatus('idle');
-          return;
-        }
-
-        if (totalHits < page * 12) {
-          setImages(prevState => [...prevState, ...sortedImages]);
-          setStatus('idle');
-          alert(
-            "We're sorry, but you've reached the end of search results"
-          );
-          return;
-        }
-
-        setImages(prevState => [...prevState, ...sortedImages]);
-        setStatus('success');
-
-        if (page === 1) {
-          alert(`That's what we found`);
-        }
-      };
 
     if (!search) {
       return;
     }
 
-    fetchData({ page, search });
+    fetchData( search, page)
+      .then((data) => {
+        setImages(prevState => [...prevState, ...data])
+    })
+
   }, [page, search]);
 
 
   const handleSearchbar = search => {
+    if (!search) {
+      throw new Error('Please enter key word');
+    }
     setSearch(search);
-
   };
 
 
@@ -151,10 +138,23 @@ export const App = () => {
     setLargeImage(imageURL);
   };
 
+  const onLoadMore = () => {
+    setPage(page + 1);
+  };
+
   return (
     <>
       <Searchbar onSubmit={handleSearchbar} />
-      <GalleryForm searchData={search} openModal={toggleModal} getUrl={getLargeImage} />
+      {images.length > 0 &&
+        <ImageGallery
+          images={images}
+          // modalclick={openModal}
+          //  getUrl={getUrl}
+          //  status={status}
+          load={onLoadMore}
+        />
+      }
+      {/*<GalleryForm searchData={search} openModal={toggleModal} getUrl={getLargeImage} />*/}
       <ToastContainer autoClose={2000} />
 
       {showModal && (
@@ -165,3 +165,5 @@ export const App = () => {
     </>
   );
 };
+
+
