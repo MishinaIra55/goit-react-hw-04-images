@@ -150,13 +150,13 @@ export const App = () => {
       {(status === 'idle' && images.length === 0) && <div className={styles.text}>Введите ваш запрос поиска</div>}
       {status === 'rejected' && <ErrorData message={error}/>}
 
-      {/*{status === 'pending' && <Loader/>}*/}
+      {status === 'pending' && <Loader/>}
 
       {images.length > 0 &&
         <ImageGallery
           images={images}
-           // modalclick={openModal}
-           // getUrl={getUrl}
+           modalclick={toggleModal}
+           getUrl={getLargeImage}
            status={status}
           load={onLoadMore}
         />
