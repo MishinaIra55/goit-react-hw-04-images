@@ -36,6 +36,10 @@ img {
   padding-bottom: 24px;
 }
 
+.text {
+  font-size: 20px;
+  text-align: center;
+}
 /*
  * Стили компонента Searchbar
  */
